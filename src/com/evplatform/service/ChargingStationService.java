@@ -4,6 +4,7 @@ import com.evplatform.dao.ChargingStationDAO;
 import com.evplatform.dao.ProviderDAO;
 import com.evplatform.dao.interfaces.ChargingStationDAOInterface;
 import com.evplatform.dao.interfaces.ProviderDAOInterface;
+import com.evplatform.observers.ObserverManager;
 import com.evplatform.service.interfaces.ChargingStationServiceInterface;
 import com.evplatform.vao.ChargingStation;
 import com.evplatform.vao.Provider;
@@ -11,28 +12,20 @@ import com.evplatform.vao.Provider;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementation of the ChargingStationServiceInterface.
- * Contains business logic for ChargingStation operations.
- */
+
 public class ChargingStationService implements ChargingStationServiceInterface {
 
     private static volatile ChargingStationService instance;
     private final ChargingStationDAOInterface stationDAO;
     private final ProviderDAOInterface providerDAO;
 
-    /**
-     * Private constructor for Singleton pattern
-     */
+
     private ChargingStationService() {
         this.stationDAO = ChargingStationDAO.getInstance();
         this.providerDAO = ProviderDAO.getInstance();
     }
 
-    /**
-     * Get the singleton instance of ChargingStationService
-     * @return ChargingStationService singleton instance
-     */
+
     public static ChargingStationService getInstance() {
         if (instance == null) {
             synchronized (ChargingStationService.class) {
@@ -44,12 +37,7 @@ public class ChargingStationService implements ChargingStationServiceInterface {
         return instance;
     }
 
-    /**
-     * Validates charging station data
-     * @param station ChargingStation to validate
-     * @throws IllegalArgumentException if station data is invalid
-     * @throws IllegalStateException if the provider does not exist
-     */
+
     private void validateChargingStation(ChargingStation station) throws IllegalArgumentException, IllegalStateException {
         if (station == null) {
             throw new IllegalArgumentException("Charging station cannot be null");
@@ -76,7 +64,6 @@ public class ChargingStationService implements ChargingStationServiceInterface {
             throw new IllegalStateException("Provider with ID " + station.getProviderId() + " does not exist");
         }
 
-        // Additional validation can be added here
     }
 
     @Override
@@ -95,7 +82,12 @@ public class ChargingStationService implements ChargingStationServiceInterface {
             }
         }
 
-        return stationDAO.add(station);
+        int id = stationDAO.add(station);
+
+        // Register observers for the new station
+        ObserverManager.getInstance().registerObservers(station);
+
+        return id;
     }
 
     @Override

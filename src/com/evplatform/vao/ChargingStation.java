@@ -1,11 +1,11 @@
 package com.evplatform.vao;
 
+import com.evplatform.observers.ChargingStationObserver;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-/**
- * Value Access Object (VAO) representing an electric charging station.
- * Contains only data without business logic.
- */
+
 public class ChargingStation {
     private int id;
     private String name;
@@ -16,10 +16,10 @@ public class ChargingStation {
     private int providerId; // ID of the provider (maintained for backward compatibility)
     private int numberOfConnectors;
     private double maxPowerKw;
+    private String currentUserEmail; // Email of the user currently using this station
+    private final List<ChargingStationObserver> observers = new ArrayList<>(); // Observers list
 
-    /**
-     * Enum for charging station status
-     */
+
     public enum ChargingStationStatus {
         AVAILABLE,
         OCCUPIED,
@@ -27,24 +27,11 @@ public class ChargingStation {
         MAINTENANCE
     }
 
-    /**
-     * Default constructor
-     */
+
     public ChargingStation() {
     }
 
-    /**
-     * Parameterized constructor with provider ID
-     *
-     * @param id Unique identifier for the charging station
-     * @param name Name/label of the charging station
-     * @param location Human-readable location description
-     * @param coordinates GPS coordinates in "latitude,longitude" format
-     * @param status Current operational status
-     * @param providerId ID of the provider who owns this station
-     * @param numberOfConnectors Number of connectors available
-     * @param maxPowerKw Maximum power output in kilowatts
-     */
+
     public ChargingStation(int id, String name, String location, String coordinates,
                            ChargingStationStatus status, int providerId, int numberOfConnectors, double maxPowerKw) {
         this.id = id;
@@ -58,18 +45,7 @@ public class ChargingStation {
         // Provider object will be set separately
     }
 
-    /**
-     * Parameterized constructor with provider object
-     *
-     * @param id Unique identifier for the charging station
-     * @param name Name/label of the charging station
-     * @param location Human-readable location description
-     * @param coordinates GPS coordinates in "latitude,longitude" format
-     * @param status Current operational status
-     * @param provider Provider who owns this station
-     * @param numberOfConnectors Number of connectors available
-     * @param maxPowerKw Maximum power output in kilowatts
-     */
+
     public ChargingStation(int id, String name, String location, String coordinates,
                            ChargingStationStatus status, Provider provider, int numberOfConnectors, double maxPowerKw) {
         this.id = id;
@@ -82,35 +58,22 @@ public class ChargingStation {
         this.maxPowerKw = maxPowerKw;
     }
 
-    /**
-     * Get station ID
-     * @return The unique identifier of the station
-     */
+
     public int getId() {
         return id;
     }
 
-    /**
-     * Set station ID
-     * @param id The unique identifier to set
-     */
+
     public void setId(int id) {
         this.id = id;
     }
 
-    /**
-     * Get station name
-     * @return The name of the station
-     */
+
     public String getName() {
         return name;
     }
 
-    /**
-     * Set station name
-     * @param name The name to set
-     * @throws IllegalArgumentException if name is null or empty
-     */
+
     public void setName(String name) {
         if (name == null || name.trim().isEmpty()) {
             throw new IllegalArgumentException("Charging station name cannot be empty");
@@ -118,71 +81,58 @@ public class ChargingStation {
         this.name = name;
     }
 
-    /**
-     * Get location description
-     * @return The location description
-     */
+
     public String getLocation() {
         return location;
     }
 
-    /**
-     * Set location description
-     * @param location The location to set
-     */
+
     public void setLocation(String location) {
         this.location = location;
     }
 
-    /**
-     * Get GPS coordinates
-     * @return The coordinates in "latitude,longitude" format
-     */
+
     public String getCoordinates() {
         return coordinates;
     }
 
-    /**
-     * Set GPS coordinates
-     * @param coordinates The coordinates to set (in "latitude,longitude" format)
-     */
+
     public void setCoordinates(String coordinates) {
         this.coordinates = coordinates;
     }
 
-    /**
-     * Get current station status
-     * @return The status enum value
-     */
+
     public ChargingStationStatus getStatus() {
         return status;
     }
 
-    /**
-     * Set station status
-     * @param status The status to set
-     * @throws IllegalArgumentException if status is null
-     */
+
     public void setStatus(ChargingStationStatus status) {
         if (status == null) {
             throw new IllegalArgumentException("Status cannot be null");
         }
+
+        // Store the old status for notification
+        ChargingStationStatus oldStatus = this.status;
+
+        // Update the status
         this.status = status;
+
+        // If status changes from OCCUPIED to AVAILABLE, clear the current user email
+        if (oldStatus == ChargingStationStatus.OCCUPIED && status == ChargingStationStatus.AVAILABLE) {
+            this.currentUserEmail = null;
+        }
+
+        // Notify observers of the status change
+        notifyObservers(oldStatus);
     }
 
-    /**
-     * Get provider ID
-     * @return The ID of the provider who owns this station
-     */
+
     public int getProviderId() {
         return providerId;
     }
 
-    /**
-     * Set provider ID
-     * @param providerId The provider ID to set
-     * @throws IllegalArgumentException if providerId is negative
-     */
+
     public void setProviderId(int providerId) {
         if (providerId < 0) {
             throw new IllegalArgumentException("Provider ID cannot be negative");
@@ -190,18 +140,12 @@ public class ChargingStation {
         this.providerId = providerId;
     }
 
-    /**
-     * Get provider object
-     * @return The provider who owns this station
-     */
+
     public Provider getProvider() {
         return provider;
     }
 
-    /**
-     * Set provider object
-     * @param provider The provider to set
-     */
+
     public void setProvider(Provider provider) {
         // Remove this station from previous provider if exists
         if (this.provider != null && this.provider != provider) {
@@ -221,19 +165,12 @@ public class ChargingStation {
         }
     }
 
-    /**
-     * Get number of connectors
-     * @return The number of connectors available
-     */
+
     public int getNumberOfConnectors() {
         return numberOfConnectors;
     }
 
-    /**
-     * Set number of connectors
-     * @param numberOfConnectors The number to set
-     * @throws IllegalArgumentException if number of connectors is negative
-     */
+
     public void setNumberOfConnectors(int numberOfConnectors) {
         if (numberOfConnectors < 0) {
             throw new IllegalArgumentException("Number of connectors cannot be negative");
@@ -241,24 +178,46 @@ public class ChargingStation {
         this.numberOfConnectors = numberOfConnectors;
     }
 
-    /**
-     * Get maximum power output
-     * @return The maximum power in kilowatts
-     */
+
     public double getMaxPowerKw() {
         return maxPowerKw;
     }
 
-    /**
-     * Set maximum power output
-     * @param maxPowerKw The maximum power to set in kilowatts
-     * @throws IllegalArgumentException if power is negative
-     */
+
     public void setMaxPowerKw(double maxPowerKw) {
         if (maxPowerKw < 0) {
             throw new IllegalArgumentException("Maximum power cannot be negative");
         }
         this.maxPowerKw = maxPowerKw;
+    }
+
+
+    public String getCurrentUserEmail() {
+        return currentUserEmail;
+    }
+
+
+    public void setCurrentUserEmail(String email) {
+        this.currentUserEmail = email;
+    }
+
+
+    public void addObserver(ChargingStationObserver observer) {
+        if (observer != null && !observers.contains(observer)) {
+            observers.add(observer);
+        }
+    }
+
+
+    public boolean removeObserver(ChargingStationObserver observer) {
+        return observers.remove(observer);
+    }
+
+
+    private void notifyObservers(ChargingStationStatus oldStatus) {
+        for (ChargingStationObserver observer : observers) {
+            observer.update(this, oldStatus);
+        }
     }
 
     @Override

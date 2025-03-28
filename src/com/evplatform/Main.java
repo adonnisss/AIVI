@@ -4,9 +4,11 @@ package com.evplatform;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 // Application imports
 import com.evplatform.iterators.IteratorProvider;
+import com.evplatform.observers.ObserverManager;
 import com.evplatform.service.ChargingStationService;
 import com.evplatform.service.ProviderService;
 import com.evplatform.service.interfaces.ChargingStationServiceInterface;
@@ -28,6 +30,9 @@ public class Main {
         // Initialize sample data
         initSampleData();
 
+        // Initialize observers
+        initObservers();
+
         // Test singleton and data centralization
         testDataCentralization();
 
@@ -46,6 +51,9 @@ public class Main {
                 case 3:
                     handleIteratorsMenu();
                     break;
+                case 4:
+                    simulateCharging();
+                    break;
                 case 0:
                     exit = true;
                     System.out.println("Exiting program. Goodbye!");
@@ -56,6 +64,79 @@ public class Main {
         }
 
         scanner.close();
+    }
+
+    /**
+     * Initialize observers and register them with existing charging stations
+     */
+    private static void initObservers() {
+        System.out.println("\n===== Initializing Observers =====");
+        ObserverManager.getInstance().registerAllObservers();
+        System.out.println("Observers registered successfully.");
+    }
+
+    /**
+     * Simulate a charging session with user interaction
+     */
+    private static void simulateCharging() {
+        System.out.println("\n===== Simulate Charging =====");
+
+        // Get all charging stations
+        List<ChargingStation> stations = stationService.getAllChargingStations();
+        if (stations.isEmpty()) {
+            System.out.println("No charging stations available.");
+            return;
+        }
+
+        // List available stations
+        System.out.println("Available stations:");
+        List<ChargingStation> availableStations = stations.stream()
+                .filter(s -> s.getStatus() == ChargingStation.ChargingStationStatus.AVAILABLE)
+                .collect(Collectors.toList());
+
+        if (availableStations.isEmpty()) {
+            System.out.println("No available stations to start charging.");
+            return;
+        }
+
+        for (int i = 0; i < availableStations.size(); i++) {
+            System.out.println((i + 1) + ". " + availableStations.get(i).getName());
+        }
+
+        // Choose a station
+        int stationChoice = getIntInput("Choose a station to start charging (1-" + availableStations.size() + "): ");
+        if (stationChoice < 1 || stationChoice > availableStations.size()) {
+            System.out.println("Invalid choice.");
+            return;
+        }
+
+        ChargingStation selectedStation = availableStations.get(stationChoice - 1);
+
+        // Get user email
+        String email = getStringInput("Enter your email: ");
+
+        // Start charging
+        selectedStation.setCurrentUserEmail(email);
+        selectedStation.setStatus(ChargingStation.ChargingStationStatus.OCCUPIED);
+
+        System.out.println("Charging started at " + selectedStation.getName());
+
+        // Option to stop charging
+        boolean stopCharging = getYesNoInput("Do you want to stop charging? (y/n): ");
+        if (stopCharging) {
+            // Stop charging
+            selectedStation.setStatus(ChargingStation.ChargingStationStatus.AVAILABLE);
+            System.out.println("Charging stopped at " + selectedStation.getName());
+        }
+    }
+
+    /**
+     * Helper method for yes/no input
+     */
+    private static boolean getYesNoInput(String prompt) {
+        System.out.print(prompt);
+        String input = scanner.nextLine().trim().toLowerCase();
+        return input.equals("y") || input.equals("yes");
     }
 
     /**
@@ -155,6 +236,7 @@ public class Main {
         System.out.println("1. Provider Management");
         System.out.println("2. Charging Station Management");
         System.out.println("3. Iterators Demonstration");
+        System.out.println("4. Simulate Charging");
         System.out.println("0. Exit");
         System.out.println("================================================");
     }
@@ -561,6 +643,12 @@ public class Main {
             System.out.println("Provider: " + providerName + " (ID: " + station.getProviderId() + ")");
             System.out.println("Number of Connectors: " + station.getNumberOfConnectors());
             System.out.println("Maximum Power: " + station.getMaxPowerKw() + " kW");
+
+            // Display user information if occupied
+            if (station.getStatus() == ChargingStation.ChargingStationStatus.OCCUPIED) {
+                System.out.println("Current User: " + (station.getCurrentUserEmail() != null ?
+                        station.getCurrentUserEmail() : "Unknown"));
+            }
         }
     }
 
@@ -704,6 +792,14 @@ public class Main {
             }
 
             ChargingStation.ChargingStationStatus newStatus = statuses[statusChoice - 1];
+
+            // Set user email if changing to OCCUPIED
+            if (newStatus == ChargingStation.ChargingStationStatus.OCCUPIED &&
+                    station.getStatus() != ChargingStation.ChargingStationStatus.OCCUPIED) {
+                String email = getStringInput("Enter user email for occupied station: ");
+                station.setCurrentUserEmail(email);
+            }
+
             boolean success = stationService.updateChargingStationStatus(id, newStatus);
 
             if (success) {
