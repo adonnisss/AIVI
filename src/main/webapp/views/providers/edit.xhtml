@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+
+<ui:composition template="/WEB-INF/template/template.xhtml">
+    <ui:define name="title">#{crudBean.editMode ? 'Edit Provider' : 'Create Provider'} - EV Charging Platform</ui:define>
+    <ui:define name="pageTitle">#{crudBean.editMode ? 'Edit Provider' : 'Create Provider'}</ui:define>
+
+    <ui:define name="content">
+        <div class="card">
+            <div class="card-body">
+                <h:form id="providerForm">
+                    <div class="mb-3">
+                        <h:outputLabel for="name" value="Name" styleClass="form-label" />
+                        <h:inputText id="name" value="#{crudBean.currentProvider.name}"
+                                     required="true" requiredMessage="Name is required"
+                                     styleClass="form-control" />
+                        <h:message for="name" styleClass="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <h:outputLabel for="contactPerson" value="Contact Person" styleClass="form-label" />
+                        <h:inputText id="contactPerson" value="#{crudBean.currentProvider.contactPerson}"
+                                     styleClass="form-control" />
+                        <h:message for="contactPerson" styleClass="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <h:outputLabel for="email" value="Email" styleClass="form-label" />
+                        <h:inputText id="email" value="#{crudBean.currentProvider.email}"
+                                     styleClass="form-control" />
+                        <h:message for="email" styleClass="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <h:outputLabel for="phone" value="Phone" styleClass="form-label" />
+                        <h:inputText id="phone" value="#{crudBean.currentProvider.phone}"
+                                     styleClass="form-control" />
+                        <h:message for="phone" styleClass="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <h:outputLabel for="address" value="Address" styleClass="form-label" />
+                        <h:inputTextarea id="address" value="#{crudBean.currentProvider.address}"
+                                         styleClass="form-control" rows="3" />
+                        <h:message for="address" styleClass="text-danger" />
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <h:commandButton value="Save" action="#{crudBean.saveProvider()}"
+                                         styleClass="btn btn-primary" />
+
+                        <h:button value="Cancel" outcome="/views/providers/list.xhtml"
+                                  styleClass="btn btn-secondary" />
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

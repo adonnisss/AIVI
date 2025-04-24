@@ -1,32 +1,58 @@
 <!DOCTYPE html>
-<html
-	xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
-	xmlns:h="http://xmlns.jcp.org/jsf/html">
-
+<html xmlns="http://www.w3.org/1999/xhtml"
+	  xmlns:h="jakarta.faces.html"
+	  xmlns:f="jakarta.faces.core"
+	  xmlns:ui="jakarta.faces.facelets">
 <h:head>
-	<meta charset="UTF-8" />
-	<title><ui:insert name="title">Sample</ui:insert></title>
+	<title><ui:insert name="title">EV Charging Platform</ui:insert></title>
+	<h:outputStylesheet library="webjars" name="bootstrap/5.3.0/css/bootstrap.min.css" />
+	<h:outputScript library="webjars" name="bootstrap/5.3.0/js/bootstrap.bundle.min.js" />
+	<h:outputStylesheet library="css" name="styles.css" />
 </h:head>
-
 <h:body>
+	<nav class="navbar navbar-expand-lg">
+		<div class="container-fluid">
+			<h:link outcome="/index.xhtml" styleClass="navbar-brand"> EV Charging Platform </h:link>			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarNav">
+				<ul class="navbar-nav">
+					<li class="nav-item">
+						<h:button outcome="/index.xhtml" value="Home" styleClass="nav-link #{view.viewId == '/index.xhtml' ? 'active' : ''}" />
+					</li>
+					<li class="nav-item">
+						<h:button outcome="/views/users/list.xhtml" value="Users" styleClass="nav-link #{view.viewId.contains('/users/') ? 'active' : ''}" />
+					</li>
+					<li class="nav-item">
+						<h:link outcome="/views/providers/list.xhtml" styleClass="nav-link #{view.viewId.contains('/providers/') ? 'active' : ''}">
+							Providers
+						</h:link>
+					</li>
+					<li class="nav-item">
+						<h:link outcome="/views/stations/list.xhtml" styleClass="nav-link #{view.viewId.contains('/stations/') ? 'active' : ''}">
+							Charging Stations
+						</h:link>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</nav>
 
-	<div id="header">
-		<ui:insert name="header">
-    		[
-    			<a href="#{facesContext.externalContext.applicationContextPath}/page.xhtml">Page</a> |
-    			<a href="#{facesContext.externalContext.applicationContextPath}/templated_page.xhtml">Templated page</a>
-    		]
-    		<hr/>
-		</ui:insert>
-	</div>
+	<div class="container my-4">
+		<h1 class="mb-4 text-center text-purple"><ui:insert name="pageTitle">Page Title</ui:insert></h1>
 
-	<div id="content">
+		<h:messages id="messages" styleClass="list-unstyled mb-4"
+					errorClass="alert alert-danger" infoClass="alert alert-success" />
+
 		<ui:insert name="content">
-    		
- 
+			Default Content
 		</ui:insert>
 	</div>
 
+	<footer class="footer py-3 mt-5">
+		<div class="container text-center">
+			<p class="mb-0">EV Charging Platform - AIVI, Anej Lah © 2025</p>
+		</div>
+	</footer>
 </h:body>
-
 </html>

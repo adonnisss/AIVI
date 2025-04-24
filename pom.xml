@@ -18,12 +18,19 @@
 			<scope>provided</scope>
 		</dependency>
 
+
 		<!-- Standard Java Libraries -->
 		<dependency>
 			<groupId>org.glassfish</groupId>
 			<artifactId>jakarta.faces</artifactId>
 			<version>3.0.0</version>
 			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.webjars</groupId>
+			<artifactId>bootstrap</artifactId>
+			<version>5.3.0</version>
 		</dependency>
 
 		<dependency>

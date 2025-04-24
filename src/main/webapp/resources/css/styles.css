@@ -1,0 +1,207 @@
+:root {
+    --primary-color: #8e44ad;
+    --secondary-color: #673ab7;
+    --dark-bg: #121212;
+    --dark-bg-lighter: #1e1e1e;
+    --dark-bg-lightest: #2d2d30;
+    --text-color: #e1e1e1;
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-color);
+}
+
+.navbar {
+    background-color: var(--dark-bg-lighter) !important;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.navbar-brand, .nav-link {
+    color: var(--text-color) !important;
+}
+
+.nav-link.active, .navbar-brand {
+    color: var(--primary-color) !important;
+    font-weight: bold;
+}
+
+.card-text.display-4 {
+    color: white !important;
+    font-size: 3.5rem;
+    font-weight: bold;
+    text-shadow: 0 0 10px rgba(142, 68, 173, 0.5);
+    margin: 10px 0;
+}
+
+.card {
+    background-color: var(--dark-bg-lighter);
+    border: none;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.3);
+    transition: transform 0.3s ease;
+
+}
+.card-body {
+    padding: 2rem;
+}
+.card form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+.form-label {
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+.card-body h5.card-title {
+    color: var(--primary-color);
+    font-weight: bold;
+    margin-bottom: 15px;
+}
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 20px rgba(142, 68, 173, 0.3);
+}
+
+.table {
+    color: var(--text-color) !important; /* Text color, not background */
+    --bs-table-bg: var(--dark-bg-lighter) !important; /* This sets the table background */
+    --bs-table-striped-bg: var(--dark-bg-lightest) !important; /* For striped tables */
+    --bs-table-hover-bg: #3a3a3d !important; /* For hover effect */
+    --bs-table-border-color: #444 !important;
+    border-color: #444 !important;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* These ensure all table parts have the right background */
+.table tbody,
+.table thead,
+.table tr,
+.table td,
+.table th {
+    background-color: inherit;
+    border-color: #444 !important;
+}
+
+.table > thead {
+    background-color: var(--primary-color) !important;
+    color: white !important;
+}
+.table > thead th {
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+.table td, .table th {
+    text-align: center;
+    vertical-align: middle;
+}
+
+/* Ensure table cell text is visible */
+.table > :not(caption) > * > * {
+    background-color: transparent !important;
+    color: white !important;
+}
+
+.form-control, .form-select {
+    background-color: var(--dark-bg-lightest);
+    color: var(--text-color) !important;
+    border: 1px solid #444;
+    padding: 10px 15px;
+}
+
+.text-purple, h1, h2, h3 {
+    color: var(--primary-color) !important;
+}
+.form-control:focus, .form-select:focus {
+    background-color: var(--dark-bg-lightest);
+    color: var(--text-color);
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(142, 68, 173, 0.25);
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    border-color: var(--secondary-color);
+    background-color: var(--secondary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.btn-primary:active,
+.btn-primary.active,
+.btn-primary:focus-visible,
+.btn:active,
+.btn.active {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+    box-shadow: 0 0 0 0.25rem rgba(142, 68, 173, 0.5) !important;
+}
+
+.btn-warning, .btn-edit {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: white !important;
+}
+.btn-warning:hover, .btn-edit:hover {
+    background-color: var(--secondary-color) !important;
+    border-color: var(--secondary-color) !important;
+}
+.btn-danger, .btn-delete {
+    background-color: #e74c3c;
+    border-color: #c0392b;
+}
+
+.btn-sm {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+}
+.btn-secondary {
+    background-color: #555;
+    border-color: #444;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #666;
+    border-color: #555;
+}
+.footer {
+    background-color: var(--dark-bg-lighter) !important;
+    color: #888;
+}
+
+.table-actions {
+    width: 150px;
+}
+
+.alert-info, .alert-success, .alert-danger {
+    background-color: var(--dark-bg-lighter);
+    color: var(--text-color);
+    border-left: 4px solid var(--primary-color);
+}
+
+.alert-danger {
+    border-left-color: #e74c3c;
+}
+
+.alert-success {
+    border-left-color: #2ecc71;
+}
+
+.footer {
+    flex-shrink: 0;
+    background-color: var(--dark-bg-lighter) !important;
+    color: #888;
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    border-top: 1px solid #333;
+}

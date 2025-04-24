@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+
+<ui:composition template="/WEB-INF/template/template.xhtml">
+    <ui:define name="title">Providers - EV Charging Platform</ui:define>
+    <ui:define name="pageTitle">Provider Management</ui:define>
+
+    <ui:define name="content">
+        <h:form id="providerForm">
+            <div class="mb-3">
+                <h:commandButton value="Add New Provider"
+                                 action="#{crudBean.prepareNewProvider()}"
+                                 styleClass="btn btn-primary">
+                    <f:ajax />
+                </h:commandButton>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h:dataTable id="providersTable" value="#{crudBean.allProviders}" var="provider"
+                                 styleClass="table table-striped table-hover"
+                                 headerClass="table-header"
+                                 rowClasses="table-row">
+                        <h:column>
+                            <f:facet name="header">ID</f:facet>
+                            #{provider.id}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Name</f:facet>
+                            #{provider.name}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Contact Person</f:facet>
+                            #{provider.contactPerson}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Email</f:facet>
+                            #{provider.email}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Phone</f:facet>
+                            #{provider.phone}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Stations</f:facet>
+                            #{provider.chargingStations.size()}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Actions</f:facet>
+                            <h:commandButton value="Edit"
+                                             action="#{crudBean.prepareEditProvider(provider)}"
+                                             styleClass="btn btn-warning btn-sm me-2" />
+
+                            <h:commandButton value="Delete"
+                                             action="#{crudBean.confirmDeleteProvider(provider)}"
+                                             styleClass="btn btn-danger btn-sm" />
+                        </h:column>
+                    </h:dataTable>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Dialog -->
+            <h:panelGroup rendered="#{crudBean.showDeleteConfirmation}">
+                <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="background-color: var(--dark-bg-lighter); color: var(--text-color);">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirm Delete</h5>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete this provider?
+                            </div>
+                            <div class="modal-footer">
+                                <h:commandButton value="Cancel"
+                                                 action="#{crudBean.cancelDelete()}"
+                                                 styleClass="btn btn-secondary" />
+
+                                <h:commandButton value="Delete"
+                                                 action="#{crudBean.deleteProvider()}"
+                                                 styleClass="btn btn-danger" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

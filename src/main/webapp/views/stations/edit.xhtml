@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+
+<ui:composition template="/WEB-INF/template/template.xhtml">
+    <ui:define name="title">#{crudBean.editMode ? 'Edit Charging Station' : 'Create Charging Station'} - EV Charging Platform</ui:define>
+    <ui:define name="pageTitle">#{crudBean.editMode ? 'Edit Charging Station' : 'Create Charging Station'}</ui:define>
+
+    <ui:define name="content">
+        <div class="card">
+            <div class="card-body">
+                <h:form id="stationForm">
+                    <div class="mb-3">
+                        <h:outputLabel for="name" value="Name" styleClass="form-label" />
+                        <h:inputText id="name" value="#{crudBean.currentStation.name}"
+                                     required="true" requiredMessage="Name is required"
+                                     styleClass="form-control" />
+                        <h:message for="name" styleClass="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <h:outputLabel for="location" value="Location" styleClass="form-label" />
+                        <h:inputText id="location" value="#{crudBean.currentStation.location}"
+                                     required="true" requiredMessage="Location is required"
+                                     styleClass="form-control" />
+                        <h:message for="location" styleClass="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <h:outputLabel for="coordinates" value="Coordinates" styleClass="form-label" />
+                        <h:inputText id="coordinates" value="#{crudBean.currentStation.coordinates}"
+                                     styleClass="form-control"
+                                     placeholder="latitude,longitude" />
+                        <h:message for="coordinates" styleClass="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <h:outputLabel for="status" value="Status" styleClass="form-label" />
+                        <h:selectOneMenu id="status" value="#{crudBean.selectedStationStatus}"
+                                         required="true" requiredMessage="Status is required"
+                                         styleClass="form-select">
+                            <f:selectItem itemLabel="-- Select Status --" itemValue="" />
+                            <f:selectItems value="#{crudBean.stationStatuses}" var="status"
+                                           itemLabel="#{status}" itemValue="#{status}" />
+                        </h:selectOneMenu>
+                        <h:message for="status" styleClass="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <h:outputLabel for="provider" value="Provider" styleClass="form-label" />
+                        <h:selectOneMenu id="provider" value="#{crudBean.selectedProviderId}"
+                                         required="true" requiredMessage="Provider is required"
+                                         styleClass="form-select">
+                            <f:selectItem itemLabel="-- Select Provider --" itemValue="" />
+                            <f:selectItems value="#{crudBean.allProviders}" var="provider"
+                                           itemLabel="#{provider.name}" itemValue="#{provider.id}" />
+                        </h:selectOneMenu>
+                        <h:message for="provider" styleClass="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <h:outputLabel for="connectors" value="Number of Connectors" styleClass="form-label" />
+                        <h:inputText id="connectors" value="#{crudBean.currentStation.numberOfConnectors}"
+                                     required="true" requiredMessage="Number of connectors is required"
+                                     styleClass="form-control" />
+                        <h:message for="connectors" styleClass="text-danger" />
+                    </div>
+
+                    <div class="mb-3">
+                        <h:outputLabel for="power" value="Maximum Power (kW)" styleClass="form-label" />
+                        <h:inputText id="power" value="#{crudBean.currentStation.maxPowerKw}"
+                                     required="true" requiredMessage="Maximum power is required"
+                                     styleClass="form-control" />
+                        <h:message for="power" styleClass="text-danger" />
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <h:commandButton value="Save" action="#{crudBean.saveStation()}"
+                                         styleClass="btn btn-primary" />
+
+                        <h:button value="Cancel" outcome="/views/stations/list.xhtml"
+                                  styleClass="btn btn-secondary" />
+                    </div>
+                </h:form>
+            </div>
+        </div>
+    </ui:define>
+</ui:composition>
+</html>

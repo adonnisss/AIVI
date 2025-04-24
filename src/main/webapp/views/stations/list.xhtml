@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+
+<ui:composition template="/WEB-INF/template/template.xhtml">
+    <ui:define name="title">Charging Stations - EV Charging Platform</ui:define>
+    <ui:define name="pageTitle">Charging Station Management</ui:define>
+
+    <ui:define name="content">
+        <h:form id="stationForm">
+            <div class="mb-3">
+                <h:commandButton value="Add New Charging Station"
+                                 action="#{crudBean.prepareNewStation()}"
+                                 styleClass="btn btn-primary">
+                    <f:ajax />
+                </h:commandButton>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h:dataTable id="stationsTable" value="#{crudBean.allStations}" var="station"
+                                 styleClass="table table-striped table-hover"
+                                 headerClass="table-header"
+                                 rowClasses="table-row">
+                        <h:column>
+                            <f:facet name="header">ID</f:facet>
+                            #{station.id}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Name</f:facet>
+                            #{station.name}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Location</f:facet>
+                            #{station.location}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Status</f:facet>
+                            <span class="badge #{station.status == 'AVAILABLE' ? 'bg-success' :
+                                               station.status == 'OCCUPIED' ? 'bg-warning' :
+                                               station.status == 'OUT_OF_SERVICE' ? 'bg-danger' : 'bg-info'}">
+                                #{station.status}
+                            </span>
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Provider</f:facet>
+                            #{station.provider.name}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Power (kW)</f:facet>
+                            #{station.maxPowerKw}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Actions</f:facet>
+                            <h:commandButton value="Edit"
+                                             action="#{crudBean.prepareEditStation(station)}"
+                                             styleClass="btn btn-warning btn-sm me-2" />
+
+                            <h:commandButton value="Delete"
+                                             action="#{crudBean.confirmDeleteStation(station)}"
+                                             styleClass="btn btn-danger btn-sm" />
+                        </h:column>
+                    </h:dataTable>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Dialog -->
+            <h:panelGroup rendered="#{crudBean.showDeleteConfirmation}">
+                <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="background-color: var(--dark-bg-lighter); color: var(--text-color);">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirm Delete</h5>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete this charging station?
+                            </div>
+                            <div class="modal-footer">
+                                <h:commandButton value="Cancel"
+                                                 action="#{crudBean.cancelDelete()}"
+                                                 styleClass="btn btn-secondary" />
+
+                                <h:commandButton value="Delete"
+                                                 action="#{crudBean.deleteStation()}"
+                                                 styleClass="btn btn-danger" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>

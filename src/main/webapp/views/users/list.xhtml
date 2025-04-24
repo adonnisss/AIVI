@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="jakarta.faces.html"
+      xmlns:f="jakarta.faces.core"
+      xmlns:ui="jakarta.faces.facelets">
+
+<ui:composition template="/WEB-INF/template/template.xhtml">
+    <ui:define name="title">Users - EV Charging Platform</ui:define>
+    <ui:define name="pageTitle">User Management</ui:define>
+
+    <ui:define name="content">
+        <h:form id="userForm">
+            <div class="mb-3">
+                <h:commandButton value="Add New User"
+                                 action="#{crudBean.prepareNewUser()}"
+                                 styleClass="btn btn-primary">
+                    <f:ajax />
+                </h:commandButton>
+            </div>
+
+            <div class="card">
+                <div class="card-body">
+                    <h:dataTable id="usersTable" value="#{crudBean.allUsers}" var="user"
+                                 styleClass="table table-striped table-hover"
+                                 headerClass="table-header"
+                                 rowClasses="table-row">
+                        <h:column>
+                            <f:facet name="header">ID</f:facet>
+                            #{user.id}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Name</f:facet>
+                            #{user.name}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Email</f:facet>
+                            #{user.email}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Balance</f:facet>
+                            $#{user.balance}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Car Type</f:facet>
+                            #{user.carType}
+                        </h:column>
+
+                        <h:column>
+                            <f:facet name="header">Actions</f:facet>
+                            <h:commandButton value="Edit"
+                                             action="#{crudBean.prepareEditUser(user)}"
+                                             styleClass="btn btn-warning btn-sm me-2" />
+
+                            <h:commandButton value="Delete"
+                                             action="#{crudBean.confirmDeleteUser(user)}"
+                                             styleClass="btn btn-danger btn-sm" />
+                        </h:column>
+                    </h:dataTable>
+                </div>
+            </div>
+
+            <!-- Delete Confirmation Dialog -->
+            <h:panelGroup rendered="#{crudBean.showDeleteConfirmation}">
+                <div class="modal fade show" style="display: block; background-color: rgba(0,0,0,0.5);" tabindex="-1">
+                    <div class="modal-dialog">
+                        <div class="modal-content" style="background-color: var(--dark-bg-lighter); color: var(--text-color);">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirm Delete</h5>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete this user?
+                            </div>
+                            <div class="modal-footer">
+                                <h:commandButton value="Cancel"
+                                                 action="#{crudBean.cancelDelete()}"
+                                                 styleClass="btn btn-secondary" />
+
+                                <h:commandButton value="Delete"
+                                                 action="#{crudBean.deleteUser()}"
+                                                 styleClass="btn btn-danger" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </h:panelGroup>
+        </h:form>
+    </ui:define>
+</ui:composition>
+</html>
