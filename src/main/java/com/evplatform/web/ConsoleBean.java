@@ -1,10 +1,10 @@
 package com.evplatform.web;
 
-import com.evplatform.service.ProviderService;
-import com.evplatform.service.ChargingStationService;
+import com.evplatform.service.interfaces.ChargingStationServiceInterface;
+import com.evplatform.service.interfaces.ProviderServiceInterface;
 import com.evplatform.vao.Provider;
 import com.evplatform.vao.ChargingStation;
-
+import jakarta.ejb.EJB;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;
 import java.util.logging.Logger;
@@ -15,9 +15,15 @@ public class ConsoleBean {
 
     private static final Logger logger = Logger.getLogger(ConsoleBean.class.getName());
 
+    @EJB
+    private ProviderServiceInterface providerService;
+
+    @EJB
+    private ChargingStationServiceInterface stationService;
+
     public String printProviders() {
         logger.info("===== PROVIDERS =====");
-        for (Provider provider : ProviderService.getInstance().getAllProviders()) {
+        for (Provider provider : providerService.getAllProviders()) {
             logger.info("ID: " + provider.getId() + ", Name: " + provider.getName() +
                     ", Contact: " + provider.getContactPerson());
         }
@@ -27,7 +33,7 @@ public class ConsoleBean {
 
     public String printChargingStations() {
         logger.info("===== CHARGING STATIONS =====");
-        for (ChargingStation station : ChargingStationService.getInstance().getAllChargingStations()) {
+        for (ChargingStation station : stationService.getAllChargingStations()) {
             String providerName = (station.getProvider() != null) ?
                     station.getProvider().getName() : "Unknown";
             logger.info("ID: " + station.getId() + ", Name: " + station.getName() +

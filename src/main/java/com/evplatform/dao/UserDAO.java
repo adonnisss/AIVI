@@ -2,43 +2,19 @@ package com.evplatform.dao;
 
 import com.evplatform.dao.interfaces.UserDAOInterface;
 import com.evplatform.vao.User;
-
+import jakarta.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementation of UserDAOInterface using in-memory List collection.
- * Uses Singleton pattern to ensure only one instance exists.
- */
+@Stateless
 public class UserDAO implements UserDAOInterface {
 
-    // Singleton instance with volatile for thread safety
-    private static volatile UserDAO instance;
-
-    // Thread-safe in-memory storage for users
     private final List<User> users = Collections.synchronizedList(new ArrayList<>());
     private int nextId = 1;
 
-    // Private constructor for Singleton pattern
-    private UserDAO() {
-        // Private constructor prevents instantiation from outside
-    }
-
-    /**
-     * Get the singleton instance of UserDAO using double-checked locking
-     * @return UserDAO singleton instance
-     */
-    public static UserDAO getInstance() {
-        if (instance == null) { // First check (without locking)
-            synchronized (UserDAO.class) { // Lock only for first call
-                if (instance == null) { // Second check (with locking)
-                    instance = new UserDAO();
-                }
-            }
-        }
-        return instance;
+    public UserDAO() {
     }
 
     @Override
@@ -68,7 +44,7 @@ public class UserDAO implements UserDAOInterface {
     @Override
     public List<User> getAll() {
         synchronized (users) {
-            return new ArrayList<>(users); // Return a copy to prevent ConcurrentModificationException
+            return new ArrayList<>(users);
         }
     }
 

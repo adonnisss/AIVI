@@ -1,12 +1,12 @@
 package com.evplatform.web;
 
-import com.evplatform.service.UserService;
+import com.evplatform.service.interfaces.UserServiceInterface;
 import com.evplatform.vao.User;
-
+import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Named;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
+import jakarta.inject.Named;
 import java.io.Serializable;
 import java.util.logging.Logger;
 
@@ -15,6 +15,9 @@ import java.util.logging.Logger;
 public class UserBean implements Serializable {
     private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(UserBean.class.getName());
+
+    @EJB
+    private UserServiceInterface userService;
 
     private User newUser = new User();
     private String selectedCarType;
@@ -44,36 +47,28 @@ public class UserBean implements Serializable {
     // Method to register a new user
     public String registerUser() {
         try {
-            // Convert the selected car type string to enum
             if (selectedCarType != null && !selectedCarType.isEmpty()) {
                 newUser.setCarType(User.CarType.valueOf(selectedCarType));
             }
 
-            // Set default balance if not provided
             if (newUser.getBalance() <= 0) {
                 newUser.setBalance(50.0);
             }
 
-            // Save the user
-            int userId = UserService.getInstance().addUser(newUser);
+            int userId = userService.addUser(newUser); // Use injected service
 
-            // Log success
             logger.info("User registered successfully with ID: " + userId);
 
-            // Add success message for the UI
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_INFO, "Success", "User registered successfully"));
 
-            // Reset form for next entry
             newUser = new User();
             selectedCarType = null;
 
             return "index.xhtml?faces-redirect=true";
         } catch (Exception e) {
-            // Log error
             logger.severe("Error registering user: " + e.getMessage());
 
-            // Add error message for the UI
             FacesContext.getCurrentInstance().addMessage(null,
                     new FacesMessage(FacesMessage.SEVERITY_ERROR, "Error", e.getMessage()));
 
@@ -85,7 +80,7 @@ public class UserBean implements Serializable {
     public void printUsersToConsole() {
         logger.info("===== ALL USERS =====");
 
-        UserService.getInstance().getAllUsers().forEach(user -> {
+        userService.getAllUsers().forEach(user -> { // Use injected service
             logger.info("User ID: " + user.getId() +
                     ", Name: " + user.getName() +
                     ", Email: " + user.getEmail() +

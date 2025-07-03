@@ -1,31 +1,20 @@
 package com.evplatform.iterators;
 
+import com.evplatform.service.interfaces.ProviderServiceInterface;
 import com.evplatform.vao.ChargingStation;
 import com.evplatform.vao.Provider;
-import com.evplatform.service.ProviderService;
-
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
 import java.util.Iterator;
 import java.util.List;
 
-
+@Stateless
 public class IteratorProvider {
 
-    private static volatile IteratorProvider instance;
-    private final ProviderService providerService;
+    @EJB
+    private ProviderServiceInterface providerService;
 
-    private IteratorProvider() {
-        this.providerService = ProviderService.getInstance();
-    }
-
-    public static IteratorProvider getInstance() {
-        if (instance == null) {
-            synchronized (IteratorProvider.class) {
-                if (instance == null) {
-                    instance = new IteratorProvider();
-                }
-            }
-        }
-        return instance;
+    public IteratorProvider() {
     }
 
     public Iterator<ChargingStation> getActiveStationIterator(int providerId) {
@@ -36,7 +25,6 @@ public class IteratorProvider {
         return new ActiveStationIterator(provider);
     }
 
-
     public Iterator<ChargingStation> getSpeedStationIterator(int providerId, double minPower) {
         Provider provider = providerService.getProviderById(providerId);
         if (provider == null) {
@@ -44,7 +32,6 @@ public class IteratorProvider {
         }
         return new SpeedStationIterator(provider, minPower);
     }
-
 
     public Iterator<ChargingStation> getRegionStationIterator(int providerId, String region) {
         Provider provider = providerService.getProviderById(providerId);

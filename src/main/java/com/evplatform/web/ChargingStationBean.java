@@ -1,9 +1,9 @@
 package com.evplatform.web;
 
-import com.evplatform.service.ChargingStationService;
+import com.evplatform.service.interfaces.ChargingStationServiceInterface;
+import jakarta.ejb.EJB;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Named;
-
 import java.util.logging.Logger;
 
 @Named
@@ -11,11 +11,13 @@ import java.util.logging.Logger;
 public class ChargingStationBean {
     private static final Logger logger = Logger.getLogger(ChargingStationBean.class.getName());
 
-    // Method to print all charging stations to console
+    @EJB
+    private ChargingStationServiceInterface stationService;
+
     public void printStationsToConsole() {
         logger.info("===== ALL CHARGING STATIONS =====");
 
-        ChargingStationService.getInstance().getAllChargingStations().forEach(station -> {
+        stationService.getAllChargingStations().forEach(station -> {
             String providerName = station.getProvider() != null ?
                     station.getProvider().getName() : "Unknown";
 

@@ -1,13 +1,14 @@
 package com.evplatform.dao.interfaces;
 
 import com.evplatform.vao.Provider;
+import jakarta.ejb.Local;
 import java.util.List;
 import java.util.Optional;
-
 /**
  * Interface for Provider data access operations.
  * Defines CRUD methods for Provider entities.
  */
+@Local
 public interface ProviderDAOInterface {
 
     /**

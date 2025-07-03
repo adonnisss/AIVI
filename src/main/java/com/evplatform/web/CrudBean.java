@@ -1,12 +1,12 @@
 package com.evplatform.web;
 
-import com.evplatform.service.ChargingStationService;
-import com.evplatform.service.ProviderService;
-import com.evplatform.service.UserService;
+import com.evplatform.service.interfaces.ChargingStationServiceInterface;
+import com.evplatform.service.interfaces.ProviderServiceInterface;
+import com.evplatform.service.interfaces.UserServiceInterface;
 import com.evplatform.vao.ChargingStation;
 import com.evplatform.vao.Provider;
 import com.evplatform.vao.User;
-
+import jakarta.ejb.EJB;
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.faces.application.FacesMessage;
 import jakarta.faces.context.FacesContext;
@@ -21,6 +21,15 @@ public class CrudBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
     private static final Logger logger = Logger.getLogger(CrudBean.class.getName());
+
+    @EJB
+    private UserServiceInterface userService;
+
+    @EJB
+    private ProviderServiceInterface providerService;
+
+    @EJB
+    private ChargingStationServiceInterface stationService;
 
     // Current objects for editing/viewing
     private User currentUser = new User();
@@ -122,7 +131,7 @@ public class CrudBean implements Serializable {
     }
 
     public List<Provider> getAllProviders() {
-        return ProviderService.getInstance().getAllProviders();
+        return providerService.getAllProviders();
     }
 
     public ChargingStation.ChargingStationStatus[] getStationStatuses() {
@@ -131,11 +140,11 @@ public class CrudBean implements Serializable {
 
     // Data retrieval methods
     public List<User> getAllUsers() {
-        return UserService.getInstance().getAllUsers();
+        return userService.getAllUsers();
     }
 
     public List<ChargingStation> getAllStations() {
-        return ChargingStationService.getInstance().getAllChargingStations();
+        return stationService.getAllChargingStations();
     }
 
     // User CRUD operations
@@ -155,22 +164,21 @@ public class CrudBean implements Serializable {
 
     public String saveUser() {
         try {
-            // Set car type from selection
             if (selectedCarType != null && !selectedCarType.isEmpty()) {
                 currentUser.setCarType(User.CarType.valueOf(selectedCarType));
             }
 
             if (editMode) {
-                UserService.getInstance().updateUser(currentUser);
+                userService.updateUser(currentUser);
                 addMessage(FacesMessage.SEVERITY_INFO, "Success", "User updated successfully");
             } else {
-                UserService.getInstance().addUser(currentUser);
+                userService.addUser(currentUser);
                 addMessage(FacesMessage.SEVERITY_INFO, "Success", "User created successfully");
             }
 
-            // Reset for next operation
             currentUser = new User();
             selectedCarType = null;
+            editMode = false;
 
             return "/views/users/list.xhtml?faces-redirect=true";
         } catch (Exception e) {
@@ -188,7 +196,7 @@ public class CrudBean implements Serializable {
     public String deleteUser() {
         try {
             User user = (User) itemToDelete;
-            UserService.getInstance().deleteUser(user.getId());
+            userService.deleteUser(user.getId());
             addMessage(FacesMessage.SEVERITY_INFO, "Success", "User deleted successfully");
             showDeleteConfirmation = false;
             return "/views/users/list.xhtml?faces-redirect=true";
@@ -222,15 +230,15 @@ public class CrudBean implements Serializable {
     public String saveProvider() {
         try {
             if (editMode) {
-                ProviderService.getInstance().updateProvider(currentProvider);
+                providerService.updateProvider(currentProvider);
                 addMessage(FacesMessage.SEVERITY_INFO, "Success", "Provider updated successfully");
             } else {
-                ProviderService.getInstance().addProvider(currentProvider);
+                providerService.addProvider(currentProvider);
                 addMessage(FacesMessage.SEVERITY_INFO, "Success", "Provider created successfully");
             }
 
-            // Reset for next operation
             currentProvider = new Provider();
+            editMode = false;
 
             return "/views/providers/list.xhtml?faces-redirect=true";
         } catch (Exception e) {
@@ -248,7 +256,7 @@ public class CrudBean implements Serializable {
     public String deleteProvider() {
         try {
             Provider provider = (Provider) itemToDelete;
-            ProviderService.getInstance().deleteProvider(provider.getId());
+            providerService.deleteProvider(provider.getId());
             addMessage(FacesMessage.SEVERITY_INFO, "Success", "Provider deleted successfully");
             showDeleteConfirmation = false;
             return "/views/providers/list.xhtml?faces-redirect=true";
@@ -271,7 +279,7 @@ public class CrudBean implements Serializable {
 
     public String prepareEditStation(ChargingStation station) {
         currentStation = station;
-        selectedProviderId = station.getProviderId();
+        selectedProviderId = station.getProvider() != null ? station.getProvider().getId() : 0;
         selectedStationStatus = station.getStatus() != null ? station.getStatus().name() : null;
         editMode = true;
         return "/views/stations/edit.xhtml?faces-redirect=true";
@@ -279,29 +287,27 @@ public class CrudBean implements Serializable {
 
     public String saveStation() {
         try {
-            // Set provider from selection
             if (selectedProviderId > 0) {
-                Provider provider = ProviderService.getInstance().getProviderById(selectedProviderId);
+                Provider provider = providerService.getProviderById(selectedProviderId);
                 currentStation.setProvider(provider);
             }
 
-            // Set status from selection
             if (selectedStationStatus != null && !selectedStationStatus.isEmpty()) {
                 currentStation.setStatus(ChargingStation.ChargingStationStatus.valueOf(selectedStationStatus));
             }
 
             if (editMode) {
-                ChargingStationService.getInstance().updateChargingStation(currentStation);
+                stationService.updateChargingStation(currentStation);
                 addMessage(FacesMessage.SEVERITY_INFO, "Success", "Charging station updated successfully");
             } else {
-                ChargingStationService.getInstance().addChargingStation(currentStation);
+                stationService.addChargingStation(currentStation);
                 addMessage(FacesMessage.SEVERITY_INFO, "Success", "Charging station created successfully");
             }
 
-            // Reset for next operation
             currentStation = new ChargingStation();
             selectedProviderId = 0;
             selectedStationStatus = null;
+            editMode = false;
 
             return "/views/stations/list.xhtml?faces-redirect=true";
         } catch (Exception e) {
@@ -319,7 +325,7 @@ public class CrudBean implements Serializable {
     public String deleteStation() {
         try {
             ChargingStation station = (ChargingStation) itemToDelete;
-            ChargingStationService.getInstance().deleteChargingStation(station.getId());
+            stationService.deleteChargingStation(station.getId());
             addMessage(FacesMessage.SEVERITY_INFO, "Success", "Charging station deleted successfully");
             showDeleteConfirmation = false;
             return "/views/stations/list.xhtml?faces-redirect=true";

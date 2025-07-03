@@ -2,43 +2,19 @@ package com.evplatform.dao;
 
 import com.evplatform.dao.interfaces.ProviderDAOInterface;
 import com.evplatform.vao.Provider;
-
+import jakarta.ejb.Stateless;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Implementation of ProviderDAOInterface using in-memory List collection.
- * Uses Singleton pattern to ensure only one instance exists.
- */
+@Stateless
 public class ProviderDAO implements ProviderDAOInterface {
 
-    // Singleton instance with volatile for thread safety
-    private static volatile ProviderDAO instance;
-
-    // Thread-safe in-memory storage for providers
     private final List<Provider> providers = Collections.synchronizedList(new ArrayList<>());
     private int nextId = 1;
 
-    // Private constructor for Singleton pattern
     public ProviderDAO() {
-        // Private constructor prevents instantiation from outside
-    }
-
-    /**
-     * Get the singleton instance of ProviderDAO using double-checked locking
-     * @return ProviderDAO singleton instance
-     */
-    public static ProviderDAO getInstance() {
-        if (instance == null) { // First check (without locking)
-            synchronized (ProviderDAO.class) { // Lock only for first call
-                if (instance == null) { // Second check (with locking)
-                    instance = new ProviderDAO();
-                }
-            }
-        }
-        return instance;
     }
 
     @Override
@@ -58,7 +34,7 @@ public class ProviderDAO implements ProviderDAOInterface {
     @Override
     public List<Provider> getAll() {
         synchronized (providers) {
-            return new ArrayList<>(providers); // Return a copy to prevent ConcurrentModificationException
+            return new ArrayList<>(providers);
         }
     }
 
@@ -83,11 +59,6 @@ public class ProviderDAO implements ProviderDAOInterface {
         }
     }
 
-    /**
-     * Find a provider by ID
-     * @param id Provider ID
-     * @return Optional containing the provider if found
-     */
     @Override
     public Optional<Provider> findById(int id) {
         synchronized (providers) {

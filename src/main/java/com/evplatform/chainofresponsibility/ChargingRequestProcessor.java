@@ -1,46 +1,38 @@
 package com.evplatform.chainofresponsibility;
 
-import com.evplatform.service.UserService;
-import com.evplatform.service.ChargingStationService;
-import com.evplatform.vao.User;
+import com.evplatform.service.interfaces.ChargingProcessorRemote;
+import com.evplatform.service.interfaces.ChargingStationServiceInterface;
+import com.evplatform.service.interfaces.UserServiceInterface;
 import com.evplatform.vao.ChargingStation;
+import com.evplatform.vao.User;
+import jakarta.ejb.EJB;
+import jakarta.ejb.Stateless;
 
-public class ChargingRequestProcessor {
-    private static ChargingRequestProcessor instance;
+@Stateless
+public class ChargingRequestProcessor implements ChargingProcessorRemote {
+
+    @EJB
+    private UserServiceInterface userService;
+
+    @EJB
+    private ChargingStationServiceInterface stationService;
+
     private final ChargingRequestHandler chain;
-    private final UserService userService;
-    private final ChargingStationService stationService;
 
-    private ChargingRequestProcessor() {
-        // Set up the chain
+    public ChargingRequestProcessor() {
         StationAvailabilityHandler availabilityHandler = new StationAvailabilityHandler();
         UserBalanceHandler balanceHandler = new UserBalanceHandler();
         VehicleCompatibilityHandler compatibilityHandler = new VehicleCompatibilityHandler();
 
-        // Connect the handlers
         availabilityHandler.setNextHandler(balanceHandler);
         balanceHandler.setNextHandler(compatibilityHandler);
 
-        // Set first handler as the start of the chain
         this.chain = availabilityHandler;
-
-        // Get service instances
-        this.userService = UserService.getInstance();
-        this.stationService = ChargingStationService.getInstance();
     }
 
-    public static ChargingRequestProcessor getInstance() {
-        if (instance == null) {
-            synchronized (ChargingRequestProcessor.class) {
-                if (instance == null) {
-                    instance = new ChargingRequestProcessor();
-                }
-            }
-        }
-        return instance;
-    }
-
+    @Override
     public boolean processChargingRequest(int userId, int stationId, double estimatedCost) {
+        // Logika uporablja injicirane servise namesto klicev getInstance().
         User user = userService.getUserById(userId);
         ChargingStation station = stationService.getChargingStationById(stationId);
 
@@ -54,10 +46,10 @@ public class ChargingRequestProcessor {
             return false;
         }
 
-        // Process the request through the chain
         return chain.handleRequest(user, station, estimatedCost);
     }
 
+    @Override
     public boolean stopCharging(int stationId) {
         ChargingStation station = stationService.getChargingStationById(stationId);
 
@@ -71,10 +63,9 @@ public class ChargingRequestProcessor {
             return false;
         }
 
-        // Update station status to available
         station.setStatus(ChargingStation.ChargingStationStatus.AVAILABLE);
         station.setCurrentUserEmail(null);
-        stationService.updateChargingStation(station);
+        stationService.updateChargingStation(station); // Uporabimo servis za posodobitev vira podatkov.
 
         System.out.println("Charging stopped successfully at station " + station.getName());
         return true;
